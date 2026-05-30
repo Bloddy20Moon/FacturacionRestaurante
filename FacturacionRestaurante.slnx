@@ -1,7 +1,10 @@
 <Solution>
   <Project Path="facturacionrestaurante.client/facturacionrestaurante.client.esproj">
+    <BuildType Project="Release" />
     <Build />
     <Deploy />
   </Project>
-  <Project Path="FacturacionRestaurante.Server/FacturacionRestaurante.Server.csproj" />
+  <Project Path="FacturacionRestaurante.Server/FacturacionRestaurante.Server.csproj">
+    <BuildType Project="Release" />
+  </Project>
 </Solution>

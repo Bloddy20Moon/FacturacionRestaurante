@@ -53,6 +53,23 @@ public class BillingController(BillingService billingService) : ControllerBase
         }
     }
 
+    [HttpPut("menu/{id:int}")]
+    public async Task<ActionResult<MenuProductDto>> UpdateMenuProduct(
+        int id,
+        [FromBody] UpdateMenuProductRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var result = await billingService.UpdateMenuProductAsync(id, request, cancellationToken);
+            return result is null ? NotFound() : Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpPost("orders")]
     public async Task<ActionResult<CreateOrderResultDto>> CreateOrder(
         [FromBody] CreateOrderRequest request,

@@ -82,6 +82,31 @@ public class BillingService(BillingDbContext dbContext)
         return new MenuProductDto(entity.Id, entity.Name, entity.Category, entity.Price);
     }
 
+    public async Task<MenuProductDto?> UpdateMenuProductAsync(int id, UpdateMenuProductRequest request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Name) || string.IsNullOrWhiteSpace(request.Category))
+        {
+            throw new InvalidOperationException("Nombre y categoría son obligatorios.");
+        }
+        if (request.Price <= 0)
+        {
+            throw new InvalidOperationException("El precio debe ser mayor que cero.");
+        }
+
+        var entity = await dbContext.MenuProducts.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        if (entity is null)
+        {
+            return null;
+        }
+
+        entity.Name = request.Name.Trim();
+        entity.Category = request.Category.Trim();
+        entity.Price = decimal.Round(request.Price, 2);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return new MenuProductDto(entity.Id, entity.Name, entity.Category, entity.Price);
+    }
+
     public async Task<DashboardSummaryDto> GetCurrentMonthDashboardAsync(CancellationToken cancellationToken)
     {
         var now = DateTime.UtcNow;
@@ -358,7 +383,8 @@ public class BillingService(BillingDbContext dbContext)
         var document = new BillingDocument
         {
             OrderId = order.Id,
-            DocumentNumber = $"FAC-{DateTime.UtcNow:yyyyMMddHHmmss}-{order.Id}",
+            // Se acortó el formato para no exceder los 20 caracteres de la base de datos (Ej: F260529224406-10)
+            DocumentNumber = $"F{DateTime.UtcNow:yyMMddHHmmss}-{order.Id}",
             PaymentMethod = paymentMethod,
             Subtotal = calc.Subtotal,
             DiscountAmount = calc.DiscountAmount,

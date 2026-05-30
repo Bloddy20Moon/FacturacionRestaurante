@@ -5,6 +5,7 @@ public record DiningTableStatusDto(int TableId, string TableName, bool IsActive,
 public record MenuProductDto(int Id, string Name, string Category, decimal Price);
 public record UpdateMenuProductPriceRequest(decimal Price);
 public record CreateMenuProductRequest(string Name, string Category, decimal Price);
+public record UpdateMenuProductRequest(string Name, string Category, decimal Price);
 
 public record CreateOrderItemRequest(int ProductId, decimal Quantity);
 public record CreateOrderRequest(int TableId, IReadOnlyCollection<CreateOrderItemRequest> Items);
