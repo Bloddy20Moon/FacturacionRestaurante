@@ -107,9 +107,30 @@ public class BillingService(BillingDbContext dbContext)
         return new MenuProductDto(entity.Id, entity.Name, entity.Category, entity.Price);
     }
 
+    public static DateTime GetPeruTime()
+    {
+        try
+        {
+            var tz = TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time");
+            return TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
+        }
+        catch
+        {
+            try
+            {
+                var tz = TimeZoneInfo.FindSystemTimeZoneById("America/Lima");
+                return TimeZoneInfo.ConvertTime(DateTime.UtcNow, tz);
+            }
+            catch
+            {
+                return DateTime.UtcNow.AddHours(-5);
+            }
+        }
+    }
+
     public async Task<DashboardSummaryDto> GetCurrentMonthDashboardAsync(CancellationToken cancellationToken)
     {
-        var now = DateTime.UtcNow;
+        var now = GetPeruTime();
         var start = new DateTime(now.Year, now.Month, 1);
         var end = start.AddMonths(1);
 
@@ -271,7 +292,7 @@ public class BillingService(BillingDbContext dbContext)
         {
             DiningTableId = table.Id,
             Status = OrderStatus.Open,
-            OpenedAtUtc = DateTime.UtcNow
+            OpenedAtUtc = GetPeruTime()
         };
 
         foreach (var requestedItem in request.Items)
@@ -383,20 +404,19 @@ public class BillingService(BillingDbContext dbContext)
         var document = new BillingDocument
         {
             OrderId = order.Id,
-            // Se acortó el formato para no exceder los 20 caracteres de la base de datos (Ej: F260529224406-10)
-            DocumentNumber = $"F{DateTime.UtcNow:yyMMddHHmmss}-{order.Id}",
+            DocumentNumber = $"F{GetPeruTime():yyMMddHHmmss}-{order.Id}",
             PaymentMethod = paymentMethod,
             Subtotal = calc.Subtotal,
             DiscountAmount = calc.DiscountAmount,
             TaxAmount = calc.TaxAmount,
             ServiceChargeAmount = calc.ServiceChargeAmount,
             Total = calc.Total,
-            CreatedAtUtc = DateTime.UtcNow
+            CreatedAtUtc = GetPeruTime()
         };
 
         dbContext.BillingDocuments.Add(document);
         order.Status = OrderStatus.Closed;
-        order.ClosedAtUtc = DateTime.UtcNow;
+        order.ClosedAtUtc = GetPeruTime();
 
         await dbContext.SaveChangesAsync(cancellationToken);
         await tx.CommitAsync(cancellationToken);
@@ -444,7 +464,6 @@ public class BillingService(BillingDbContext dbContext)
         };
 
         discountAmount = Math.Min(discountAmount, subtotal);
-        // Prices already include IGV. We expose IGV as an informative split.
         var discountedSubtotal = subtotal - discountAmount;
         var taxAmount = decimal.Round(discountedSubtotal * (IncludedTaxRate / (1m + IncludedTaxRate)), 2);
         var surchargeRate = paymentMethod is PaymentMethod.Cash ? 0m : CardTransferSurchargeRate;
@@ -467,7 +486,7 @@ public class BillingService(BillingDbContext dbContext)
             return (start, end);
         }
 
-        var now = DateTime.UtcNow;
+        var now = GetPeruTime();
         var monthStart = new DateTime(now.Year, now.Month, 1);
         return (monthStart, monthStart.AddMonths(1));
     }

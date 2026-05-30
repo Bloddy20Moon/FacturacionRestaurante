@@ -146,7 +146,7 @@ public class BillingController(BillingService billingService) : ControllerBase
         try
         {
             var bytes = await billingService.BuildBillingExcelAsync(from, to, cancellationToken);
-            var fileName = $"facturacion-{DateTime.UtcNow:yyyyMMdd-HHmm}.xlsx";
+            var fileName = $"facturacion-{BillingService.GetPeruTime():yyyyMMdd-HHmm}.xlsx";
             return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
         catch (InvalidOperationException ex)
@@ -164,7 +164,7 @@ public class BillingController(BillingService billingService) : ControllerBase
         try
         {
             var bytes = await billingService.BuildProductDetailExcelAsync(from, to, cancellationToken);
-            var fileName = $"facturacion-productos-{DateTime.UtcNow:yyyyMMdd-HHmm}.xlsx";
+            var fileName = $"facturacion-productos-{BillingService.GetPeruTime():yyyyMMdd-HHmm}.xlsx";
             return File(bytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
         catch (InvalidOperationException ex)
