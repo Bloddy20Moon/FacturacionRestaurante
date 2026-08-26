@@ -3,6 +3,34 @@ using Microsoft.EntityFrameworkCore;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
+// Load environment variables from .env.local or .env if present (for local development with Neon)
+var envFiles = new[] { ".env.local", ".env" };
+foreach (var file in envFiles)
+{
+    var path = Path.Combine(Directory.GetCurrentDirectory(), file);
+    if (!File.Exists(path))
+    {
+        path = Path.Combine(Directory.GetCurrentDirectory(), "..", file);
+    }
+    if (File.Exists(path))
+    {
+        foreach (var line in File.ReadAllLines(path))
+        {
+            var trimmedLine = line.Trim();
+            if (string.IsNullOrEmpty(trimmedLine) || trimmedLine.StartsWith("#")) continue;
+
+            var parts = trimmedLine.Split('=', 2);
+            if (parts.Length == 2)
+            {
+                var key = parts[0].Trim();
+                var value = parts[1].Trim('"', '\'', ' ');
+                Environment.SetEnvironmentVariable(key, value);
+            }
+        }
+        break; // Only load the first matching environment file found
+    }
+}
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
