@@ -68,6 +68,23 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapGet("/api/health", async (BillingDbContext db) =>
+{
+    try
+    {
+        var canConnect = await db.Database.CanConnectAsync();
+        if (canConnect)
+        {
+            return Results.Ok(new { status = "Healthy", database = "Connected", timestamp = DateTime.UtcNow });
+        }
+        return Results.Problem("Database connection failed", statusCode: 500);
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"Unhealthy: {ex.Message}", statusCode: 500);
+    }
+});
+
 app.MapFallbackToFile("/index.html");
 
 using (var scope = app.Services.CreateScope())
