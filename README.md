@@ -14,7 +14,7 @@
 ## 🔗 Demo en Vivo
 
 > [!TIP]
-> 🌐 **[Accede al Demo en Render aquí](https://facturacion-restaurante.onrender.com)** *(Nota: Al estar en el plan gratuito de Render, el primer acceso puede demorar ~50 segundos en arrancar mientras el contenedor se reactiva).*
+> 🌐 **[Accede al Demo en Render aquí](https://facturacionrestaurante.onrender.com/)** *(Nota: Al estar en el plan gratuito de Render, el primer acceso puede demorar ~50 segundos en arrancar mientras el contenedor se reactiva).*
 >
 > 🛢️ **Base de Datos Activa:** Alojada permanentemente en la nube serverless de [Neon.tech](https://neon.tech/).
 
